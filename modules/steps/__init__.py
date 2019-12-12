@@ -7,7 +7,7 @@ from modules.core.baseview import BaseView
 
 
 class Step(DBModel):
-    __fields__ = ["name","type", "stepstate", "state", "start", "end", "order", "config"]
+    __fields__ = ["name","type", "stepstate", "state", "start", "end", "order", "config", "background"]
     __table_name__ = "step"
     __json_fields__ = ["config", "stepstate"]
     __order_by__ = "order"
@@ -54,6 +54,12 @@ class Step(DBModel):
         cur.execute("UPDATE %s SET stepstate = ? WHERE id =?" % cls.__table_name__, (json.dumps(state),id))
         get_db().commit()
 
+    @classmethod
+    def update_step_state(cls, id, state):
+        cur = get_db().cursor()
+        cur.execute("UPDATE %s SET stepstate = ? WHERE id =?" % cls.__table_name__, (json.dumps(state),id))
+        get_db().commit()
+    
     @classmethod
     def sort(cls, new_order):
         cur = get_db().cursor()
@@ -136,25 +142,28 @@ class StepView(BaseView):
         # copy config to stepstate
         # init step
         cfg = step.config.copy()
-        cfg.update(dict(name=step.name, api=cbpi, id=step.id, timer_end=None, managed_fields=get_manged_fields_as_array(type_cfg)))
         instance = type_cfg.get("class")(**cfg)
+        cfg.update(dict(name=step.name, api=cbpi, id=step.id, timer_end=None, background=instance.is_background(), managed_fields=get_manged_fields_as_array(type_cfg)))
         instance.init()
         # set step instance to ache
         cbpi.cache["active_step"] = instance
 
+    def finish_step(self, step):
+        step.state = 'D'
+        step.end = int(time.time())
+        self.stop_step()
+        Step.update(**step.__dict__)
+        
     @route('/next', methods=['POST'])
     @route('/start', methods=['POST'])
     def start(self):
         active = Step.get_by_state("A")
         inactive = Step.get_by_state('I')
 
-        if (active is not None):
-            active.state = 'D'
-            active.end = int(time.time())
-            self.stop_step()
-            Step.update(**active.__dict__)
+        if active is not None and (active.background is None or active.background == False):
+            self.finish_step(active)
 
-        if (inactive is not None):
+        if inactive is not None:
             self.init_step(inactive)
             inactive.state = 'A'
             inactive.stepstate = inactive.config
@@ -197,8 +206,8 @@ def init_after_startup():
             return
 
         cfg = step.stepstate.copy()
-        cfg.update(dict(api=cbpi, id=step.id, managed_fields=get_manged_fields_as_array(type_cfg)))
         instance = type_cfg.get("class")(**cfg)
+        cfg.update(dict(api=cbpi, id=step.id, background=instance.is_background(), managed_fields=get_manged_fields_as_array(type_cfg)))
         instance.init()
         cbpi.cache["active_step"] = instance
 
