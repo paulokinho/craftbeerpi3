@@ -7,7 +7,7 @@ from modules.core.baseview import BaseView
 
 
 class Step(DBModel):
-    __fields__ = ["name","type", "stepstate", "state", "start", "end", "order", "config", "background"]
+    __fields__ = ["name","type", "stepstate", "state", "start", "end", "order", "config"]
     __table_name__ = "step"
     __json_fields__ = ["config", "stepstate"]
     __order_by__ = "order"
@@ -142,8 +142,8 @@ class StepView(BaseView):
         # copy config to stepstate
         # init step
         cfg = step.config.copy()
-        instance = type_cfg.get("class")(**cfg)
         cfg.update(dict(name=step.name, api=cbpi, id=step.id, timer_end=None, managed_fields=get_manged_fields_as_array(type_cfg)))
+        instance = type_cfg.get("class")(**cfg)
         instance.init()
         # set step instance to ache
         cbpi.cache["active_step"] = instance
@@ -160,7 +160,11 @@ class StepView(BaseView):
         active = Step.get_by_state("A")
         inactive = Step.get_by_state('I')
 
-        if active is not None and (active.background is None or active.background == False):
+        type_cfg = cbpi.cache.get("step_types").get(active.type)
+        cfg = active.config.copy()
+        instance = type_cfg.get("class")(**cfg)
+
+        if active is not None and not instance.is_background():
             self.finish_step(active)
 
         if inactive is not None:
@@ -206,8 +210,8 @@ def init_after_startup():
             return
 
         cfg = step.stepstate.copy()
-        instance = type_cfg.get("class")(**cfg)
         cfg.update(dict(api=cbpi, id=step.id, managed_fields=get_manged_fields_as_array(type_cfg)))
+        instance = type_cfg.get("class")(**cfg)
         instance.init()
         cbpi.cache["active_step"] = instance
 

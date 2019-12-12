@@ -24,8 +24,7 @@ CREATE TABLE IF NOT EXISTS step
     start INTEGER,
     end INTEGER,
     config VARCHAR(255),
-    kettleid INTEGER,
-    background BOOLEAN
+    kettleid INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS sensor
