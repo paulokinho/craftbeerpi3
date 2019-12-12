@@ -72,7 +72,8 @@ class BackgroundBoilStep(StepBase):
         '''
         if self.is_timer_finished() is None:
             self.start_timer(int(self.timer) * 60)
-            self.is_active = True
+        
+        self.is_active = True
     
 
     def reset(self):
