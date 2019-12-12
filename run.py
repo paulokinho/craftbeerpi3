@@ -4,7 +4,8 @@ from modules import socketio, app, cbpi
 import pydevd_pycharm
 import os
 
-pydevd_pycharm.settrace(os.environ['DEBUG_SERVER'], port=58881, stdoutToServer=True, stderrToServer=True)
+if os.environ['DEBUG_SERVER'] is not None:
+  pydevd_pycharm.settrace(os.environ['DEBUG_SERVER'], port=58881, stdoutToServer=True, stderrToServer=True)
 
 try:
   port = int(cbpi.get_config_parameter('port', '5000'))
