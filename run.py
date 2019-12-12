@@ -4,7 +4,7 @@ from modules import socketio, app, cbpi
 import pydevd_pycharm
 import os
 
-if os.environ['DEBUG_SERVER'] is not None:
+if 'DEBUG_SERVER' in os.environ:
   pydevd_pycharm.settrace(os.environ['DEBUG_SERVER'], port=58881, stdoutToServer=True, stderrToServer=True)
 
 try:
