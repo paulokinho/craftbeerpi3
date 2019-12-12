@@ -143,7 +143,7 @@ class StepView(BaseView):
         # init step
         cfg = step.config.copy()
         instance = type_cfg.get("class")(**cfg)
-        cfg.update(dict(name=step.name, api=cbpi, id=step.id, timer_end=None, background=instance.is_background(), managed_fields=get_manged_fields_as_array(type_cfg)))
+        cfg.update(dict(name=step.name, api=cbpi, id=step.id, timer_end=None, managed_fields=get_manged_fields_as_array(type_cfg)))
         instance.init()
         # set step instance to ache
         cbpi.cache["active_step"] = instance
@@ -207,7 +207,7 @@ def init_after_startup():
 
         cfg = step.stepstate.copy()
         instance = type_cfg.get("class")(**cfg)
-        cfg.update(dict(api=cbpi, id=step.id, background=instance.is_background(), managed_fields=get_manged_fields_as_array(type_cfg)))
+        cfg.update(dict(api=cbpi, id=step.id, managed_fields=get_manged_fields_as_array(type_cfg)))
         instance.init()
         cbpi.cache["active_step"] = instance
 
