@@ -95,6 +95,8 @@ class StepBase(Timer, ActorAPI, SensorAPI, KettleAPI):
     __dirty = False
     managed_fields = []
     n = False
+    background = False
+    active = False
 
     def next(self):
         self.n = True
@@ -144,3 +146,8 @@ class StepBase(Timer, ActorAPI, SensorAPI, KettleAPI):
         else:
             super(StepBase, self).__setattr__(name, value)
 
+    def is_background(self):
+        return self.background
+
+    def is_background_active(self):
+        return self.background and self.active

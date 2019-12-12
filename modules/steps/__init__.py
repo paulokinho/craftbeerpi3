@@ -55,6 +55,12 @@ class Step(DBModel):
         get_db().commit()
 
     @classmethod
+    def update_step_state(cls, id, state):
+        cur = get_db().cursor()
+        cur.execute("UPDATE %s SET stepstate = ? WHERE id =?" % cls.__table_name__, (json.dumps(state),id))
+        get_db().commit()
+    
+    @classmethod
     def sort(cls, new_order):
         cur = get_db().cursor()
 
@@ -142,19 +148,27 @@ class StepView(BaseView):
         # set step instance to ache
         cbpi.cache["active_step"] = instance
 
+    def finish_step(self, step):
+        step.state = 'D'
+        step.end = int(time.time())
+        self.stop_step()
+        Step.update(**step.__dict__)
+        
     @route('/next', methods=['POST'])
     @route('/start', methods=['POST'])
     def start(self):
         active = Step.get_by_state("A")
         inactive = Step.get_by_state('I')
 
-        if (active is not None):
-            active.state = 'D'
-            active.end = int(time.time())
-            self.stop_step()
-            Step.update(**active.__dict__)
+        if active is not None:
+            type_cfg = cbpi.cache.get("step_types").get(active.type)
+            cfg = active.config.copy()
+            instance = type_cfg.get("class")(**cfg)
+            
+            if not instance.is_background():
+                self.finish_step(active)
 
-        if (inactive is not None):
+        if inactive is not None:
             self.init_step(inactive)
             inactive.state = 'A'
             inactive.stepstate = inactive.config
