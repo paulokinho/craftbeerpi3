@@ -160,12 +160,13 @@ class StepView(BaseView):
         active = Step.get_by_state("A")
         inactive = Step.get_by_state('I')
 
-        type_cfg = cbpi.cache.get("step_types").get(active.type)
-        cfg = active.config.copy()
-        instance = type_cfg.get("class")(**cfg)
-
-        if active is not None and not instance.is_background():
-            self.finish_step(active)
+        if active is not None:
+            type_cfg = cbpi.cache.get("step_types").get(active.type)
+            cfg = active.config.copy()
+            instance = type_cfg.get("class")(**cfg)
+            
+            if not instance.is_background():
+                self.finish_step(active)
 
         if inactive is not None:
             self.init_step(inactive)
