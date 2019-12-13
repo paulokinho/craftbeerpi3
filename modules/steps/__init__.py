@@ -182,7 +182,7 @@ class StepView(BaseView):
                 self.finish_step(active)
             else:
                 current = Step.get_by_id(step.id)
-                instance = self.get_step_instance(active)
+                instance = self.get_step_instance(current)
                 
                 if not instance.is_background():
                     self.finish_step(current)
