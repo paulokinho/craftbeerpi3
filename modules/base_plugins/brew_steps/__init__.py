@@ -5,6 +5,7 @@ import time
 from modules import cbpi
 from modules.core.props import Property, StepProperty
 from modules.core.step import StepBase
+from modules.steps import StepView
 
 
 @cbpi.step
@@ -238,7 +239,7 @@ class BackgroundStep(StepBase):
 
     def finish_background_step(self):
         self.is_active = False
-        self.finish_background_step()
+        StepView.finish_background_step()
     
     def execute_background_task(self):
         while self.is_active == True:
