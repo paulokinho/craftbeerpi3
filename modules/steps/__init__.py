@@ -33,7 +33,7 @@ class Step(DBModel):
     @classmethod
     def get_by_id(cls, step_id):
         cur = get_db().cursor()
-        cur.execute("SELECT * FROM %s WHERE %s.id = ?" % (cls.__table_name__,cls.__table_name__,), int(step_id))
+        cur.execute("SELECT * FROM %s WHERE id = ?" % cls.__table_name__, (step_id,))
         r = cur.fetchone()
         if r is not None:
             return cls(r)
