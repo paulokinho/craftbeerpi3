@@ -171,7 +171,7 @@ class StepView(BaseView):
     
     @route('/next', methods=['POST'])
     @route('/start', methods=['POST'])
-    def start(self, step):
+    def start(self, step=None):
         active = Step.get_by_state("A")
         inactive = Step.get_by_state('I')
 
@@ -180,7 +180,7 @@ class StepView(BaseView):
 
             if not instance.is_background():
                 self.finish_step(active)
-            else:
+            elif step is not None:
                 current = Step.get_by_id(step.id)
                 instance = self.get_step_instance(current)
                 
