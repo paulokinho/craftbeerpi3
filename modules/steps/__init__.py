@@ -189,7 +189,9 @@ class StepView(BaseView):
             inactive.stepstate = inactive.config
             inactive.start = int(time.time())
             Step.update(**inactive.__dict__)
-        else:
+
+        active = Step.get_by_state("A")
+        if active is None:
             cbpi.log_action("Brewing Finished")
             cbpi.notify("Brewing Finished", "You are done!", timeout=None)
 

@@ -242,8 +242,11 @@ class BackgroundStep(StepBase):
         StepView.finish_background_step()
     
     def execute_background_task(self):
-        while self.is_active == True:
-            self.execute_internal()
+        while self.is_active:
+            
+            if self.is_active:
+                self.execute_internal()
+            
             time.sleep(0.1)
       
     def execute(self):
