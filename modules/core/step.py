@@ -1,11 +1,12 @@
-from modules import cbpi
+from modules import cbpi, app
 from modules.core.props import StepProperty, Property
 import time
 
 
 class NotificationAPI(object):
     def notify(self, headline, message, type="success", timeout=5000):
-        self.api.notify(headline, message, type, timeout)
+        with app.app_context():
+            self.api.notify(headline, message, type, timeout)
 
 class ActorAPI(NotificationAPI):
 
