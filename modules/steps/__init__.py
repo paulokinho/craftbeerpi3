@@ -167,6 +167,7 @@ class StepView(BaseView):
     def finish_background_step(self, backgroundStep):
         step = Step.get_by_id(backgroundStep.id)
         self.finish_step(step)
+        self.check_brewing_status()
     
     @route('/next', methods=['POST'])
     @route('/start', methods=['POST'])
@@ -189,13 +190,17 @@ class StepView(BaseView):
             inactive.start = int(time.time())
             Step.update(**inactive.__dict__)
 
+        self.check_brewing_status()
+
+        cbpi.emit("UPDATE_ALL_STEPS", Step.get_all())
+        return ('', 204)
+
+    def check_brewing_status(self):
         active = Step.get_by_state("A")
         if active is None:
             cbpi.log_action("Brewing Finished")
             cbpi.notify("Brewing Finished", "You are done!", timeout=None)
 
-        cbpi.emit("UPDATE_ALL_STEPS", Step.get_all())
-        return ('', 204)
 
 def get_manged_fields_as_array(type_cfg):
 
