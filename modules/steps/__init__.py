@@ -213,7 +213,7 @@ class StepView(BaseView):
         active = Step.get_by_state("A")
         if active is None:
             cbpi.log_action("Brewing Finished")
-            cbpi.notify("Brewing Finished", "You are done!", timeout=None)
+            StepView.notification_queue.append({"headline": "Brewing Finished", "message": "You are done!", "timeout": None})
 
 
 def get_manged_fields_as_array(type_cfg):
