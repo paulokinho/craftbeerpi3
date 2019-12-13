@@ -1,8 +1,10 @@
 import time
+from collections import deque
+
 from flask import json, request
 from flask_classy import route
 
-from modules import DBModel, cbpi, get_db
+from modules import DBModel, cbpi, get_db, app
 from modules.core.baseview import BaseView
 
 
@@ -81,6 +83,8 @@ class Step(DBModel):
 
 
 class StepView(BaseView):
+    notification_queue = deque()
+    
     model = Step
     def _pre_post_callback(self, data):
         order = self.model.get_max_order()
@@ -260,6 +264,14 @@ def init(cbpi):
         init_after_startup()
     cbpi.add_cache_callback("steps", get_all)
 
+
+def deque_notification(self):
+    if StepView.notification_queue:
+        notification = StepView.notification_queue.popleft()
+
+        with app.app_context():
+            cbpi.notify(notification.headline, notification.message, notification.type, notification.timeout)
+
 @cbpi.backgroundtask(key="step_task", interval=0.1)
 def execute_step(api):
     '''
@@ -267,6 +279,8 @@ def execute_step(api):
     :return: 
     '''
     with cbpi.app.app_context():
+        deque_notification(api)
+
         step = cbpi.cache.get("active_step")
         if step is not None:
             step.execute()
@@ -282,3 +296,4 @@ def execute_step(api):
 
                 StepView().start(step)
                 cbpi.emit("UPDATE_ALL_STEPS", Step.get_all())
+    
