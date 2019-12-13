@@ -229,6 +229,9 @@ class BoilStep(StepBase):
 
 @cbpi.step
 class BackgroundStep(StepBase):
+
+    def is_background(self):
+        return True
     
     def execute_internal(self):
         pass
