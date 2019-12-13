@@ -237,9 +237,6 @@ class BackgroundStep(StepBase):
     def execute_internal(self):
         pass
 
-    def notify(self, headline, message, type="success", timeout=5000):
-        self.notify_from_background(headline, message, type, timeout)
-    
     def finish_background_step(self):
         self.set_active(False)
         with app.app_context():

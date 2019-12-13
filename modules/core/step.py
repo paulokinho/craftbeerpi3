@@ -6,12 +6,9 @@ from modules.steps import StepView
 
 
 class NotificationAPI(object):
-    def notify_from_background(self, headline, message, type="success", timeout=5000):
-        StepView.notification_queue.append({"headline": headline, "message": message, "type": type, "timeout": timeout})        
-        
+    
     def notify(self, headline, message, type="success", timeout=5000):
-        with app.app_context():
-            self.api.notify(headline, message, type, timeout)
+        StepView.notification_queue.append({"headline": headline, "message": message, "type": type, "timeout": timeout})
 
 class ActorAPI(NotificationAPI):
 
