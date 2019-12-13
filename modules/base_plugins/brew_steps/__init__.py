@@ -2,7 +2,7 @@
 import threading
 import time
 
-from modules import cbpi
+from modules import cbpi, app
 from modules.core.props import Property, StepProperty
 from modules.core.step import StepBase
 from modules.steps import StepView
@@ -238,17 +238,18 @@ class BackgroundStep(StepBase):
         pass
 
     def finish_background_step(self):
-        self.active = False
-        StepView().finish_background_step()
+        self.set_active(False)
+        with app.app_context():
+            StepView().finish_background_step(self)
     
     def execute_background_task(self):
-        while self.active:
+        while self.is_active():
             self.execute_internal()
             time.sleep(0.1)
       
     def execute(self):
-        if not self.active:
-            self.active = True
+        if not self.is_active():
+            self.set_active(True)
 
             thread = threading.Thread(target=self.execute_background_task, args=())
             thread.daemon = True

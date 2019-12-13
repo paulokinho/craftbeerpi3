@@ -32,7 +32,6 @@ class BackgroundBoilStep(BackgroundStep):
     temp = Property.Number("Temperature", configurable=True, default_value=99, description="Target temperature for boiling")
     kettle = StepProperty.Kettle("Kettle", description="Kettle in which the boiling step takes place")
     timer = Property.Number("Timer in Minutes", configurable=True, default_value=90, description="Timer is started when target temperature is reached")
-    is_active = False
 
     reminder_00 = Property.Number(REMINDER_NAMES[0]+REMINDER_EPILOGE_ADD, configurable=True, description="Fill in times like in common recepies, e.g. Boil for 80 Minutes fill in 80")
     reminder_00_displayed = Property.Number("", default_value=None, description="Reminder displayed status")
@@ -73,7 +72,7 @@ class BackgroundBoilStep(BackgroundStep):
         if self.is_timer_finished() is None:
             self.start_timer(int(self.timer) * 60)
         
-        self.is_active = True
+        self.active = True
     
     def reset(self):
         self.stop_timer()
@@ -109,7 +108,8 @@ class BackgroundBoilStep(BackgroundStep):
                 for i in range(11):
                     self.check_reminder(i)
 
-        if self.is_timer_finished():
+        if self.is_active() and self.is_timer_finished():
+            self.set_active(False)
             self.finish_background_step();
             self.notify("Boil Step Completed!", "Starting the next step", timeout=None)
     

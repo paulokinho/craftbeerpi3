@@ -164,8 +164,8 @@ class StepView(BaseView):
         self.stop_step()
         Step.update(**step.__dict__)
 
-    def finish_background_step(self):
-        step = Step.get_by_id(self.id)
+    def finish_background_step(self, backgroundStep):
+        step = Step.get_by_id(backgroundStep.id)
         self.finish_step(step)
     
     @route('/next', methods=['POST'])
