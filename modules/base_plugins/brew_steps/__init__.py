@@ -230,6 +230,8 @@ class BoilStep(StepBase):
 @cbpi.step
 class BackgroundStep(StepBase):
     
+    background_steps = []
+    
     def is_background(self):
         return True
     
@@ -238,15 +240,19 @@ class BackgroundStep(StepBase):
 
     def finish_background_step(self):
         self.set_active(False)
+        BackgroundStep.background_steps.remove(self)
         StepView().finish_background_step(self)
 
     @cbpi.backgroundtask(key="cbpi3_execute_background_step_task", interval=0.1)
     def execute_background_task(self):
-        if self.is_active():
-            self.execute_internal()
+        if BackgroundStep.background_steps:
+            for step in BackgroundStep.background_steps:
+                if step.is_active():
+                    step.execute_internal()
       
     def execute(self):
         if not self.is_active():
             self.set_active(True)
+            BackgroundStep.background_steps.append(self)
 
         self.next()
