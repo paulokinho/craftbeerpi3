@@ -109,7 +109,7 @@ class BackgroundBoilStep(BackgroundStep):
                 for i in range(11):
                     self.check_reminder(i)
 
-        if self.is_timer_finished() == True:
+        if self.is_timer_finished():
             self.finish_background_step();
             self.notify("Boil Step Completed!", "Starting the next step", timeout=None)
     

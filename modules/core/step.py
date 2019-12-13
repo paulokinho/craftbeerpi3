@@ -147,6 +147,3 @@ class StepBase(Timer, ActorAPI, SensorAPI, KettleAPI):
 
     def is_background(self):
         return False
-
-    def is_background_active(self):
-        return self.background and self.active

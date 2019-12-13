@@ -166,7 +166,6 @@ class StepView(BaseView):
 
     def finish_background_step(self):
         step = Step.get_by_id(self.id)
-        
         self.finish_step(step)
     
     @route('/next', methods=['POST'])
