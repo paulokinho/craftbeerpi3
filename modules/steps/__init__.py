@@ -270,7 +270,7 @@ def deque_notification(self):
         notification = StepView.notification_queue.popleft()
 
         with app.app_context():
-            cbpi.notify(notification.headline, notification.message, notification.type, notification.timeout)
+            cbpi.notify(notification["headline"], notification["message"], notification["type"], notification["timeout"])
 
 @cbpi.backgroundtask(key="step_task", interval=0.1)
 def execute_step(api):
