@@ -171,17 +171,21 @@ class StepView(BaseView):
     
     @route('/next', methods=['POST'])
     @route('/start', methods=['POST'])
-    def start(self):
+    def start(self, step):
         active = Step.get_by_state("A")
         inactive = Step.get_by_state('I')
 
         if active is not None:
-            type_cfg = cbpi.cache.get("step_types").get(active.type)
-            cfg = active.config.copy()
-            instance = type_cfg.get("class")(**cfg)
-            
+            instance = self.get_step_instance(active)
+
             if not instance.is_background():
                 self.finish_step(active)
+            else:
+                current = Step.get_by_id(step.id)
+                instance = self.get_step_instance(active)
+                
+                if not instance.is_background():
+                    self.finish_step(current)
 
         if inactive is not None:
             self.init_step(inactive)
@@ -194,6 +198,12 @@ class StepView(BaseView):
 
         cbpi.emit("UPDATE_ALL_STEPS", Step.get_all())
         return ('', 204)
+
+    def get_step_instance(self, step):
+        type_cfg = cbpi.cache.get("step_types").get(step.type)
+        cfg = step.config.copy()
+        instance = type_cfg.get("class")(**cfg)
+        return instance
 
     def check_brewing_status(self):
         active = Step.get_by_state("A")
@@ -270,5 +280,5 @@ def execute_step(api):
 
             if step.n is True:
 
-                StepView().start()
+                StepView().start(step)
                 cbpi.emit("UPDATE_ALL_STEPS", Step.get_all())
