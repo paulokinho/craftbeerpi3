@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-import time
 import threading
-from abc import abstractmethod, ABCMeta
+import time
 
+from modules import cbpi
 from modules.core.props import Property, StepProperty
 from modules.core.step import StepBase
-from modules import cbpi
+
 
 @cbpi.step
 class MashStep(StepBase):
@@ -229,9 +229,7 @@ class BoilStep(StepBase):
 
 @cbpi.step
 class BackgroundStep(StepBase):
-    __metaclass__ = ABCMeta
     
-    @abstractmethod
     def execute_internal(self):
         pass
     
