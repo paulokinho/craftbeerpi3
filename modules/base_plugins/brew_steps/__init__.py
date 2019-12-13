@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
+import threading
 import time
 
-from modules import cbpi
+from modules import cbpi, app
 from modules.core.props import Property, StepProperty
 from modules.core.step import StepBase
 from modules.steps import StepView
@@ -230,8 +231,6 @@ class BoilStep(StepBase):
 @cbpi.step
 class BackgroundStep(StepBase):
     
-    background_steps = []
-    
     def is_background(self):
         return True
     
@@ -240,19 +239,20 @@ class BackgroundStep(StepBase):
 
     def finish_background_step(self):
         self.set_active(False)
-        BackgroundStep.background_steps.remove(self)
-        StepView().finish_background_step(self)
-
-    @cbpi.backgroundtask(key="cbpi3_execute_background_step_task", interval=0.1)
+        with app.app_context():
+            StepView().finish_background_step(self)
+    
     def execute_background_task(self):
-        if BackgroundStep.background_steps:
-            for step in BackgroundStep.background_steps:
-                if step.is_active():
-                    step.execute_internal()
+        while self.is_active():
+            self.execute_internal()
+            time.sleep(0.1)
       
     def execute(self):
         if not self.is_active():
             self.set_active(True)
-            BackgroundStep.background_steps.append(self)
+
+            thread = threading.Thread(target=self.execute_background_task, args=())
+            thread.daemon = True
+            thread.start()
 
         self.next()
