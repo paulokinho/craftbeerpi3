@@ -218,6 +218,7 @@ class CraftBeerPi(ActorAPI, SensorAPI):
 
     def emit(self, key, data):
         self.socketio.emit(key, data, namespace='/brew')
+        self.socketio.sleep(0.2)
 
     def notify(self, headline, message, type="success", timeout=5000):
         self.beep()
