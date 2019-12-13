@@ -224,7 +224,7 @@ class BoilStep(StepBase):
                 self.check_hop_timer(4, self.hop_4)
                 self.check_hop_timer(5, self.hop_5)
         # Check if timer finished and go to next step
-        if self.is_timer_finished() == True:
+        if self.is_timer_finished():
             self.notify("Boil Step Completed!", "Starting the next step", timeout=None)
             self.next()
 
@@ -243,9 +243,10 @@ class BackgroundStep(StepBase):
             StepView().finish_background_step(self)
     
     def execute_background_task(self):
-        while self.is_active():
-            self.execute_internal()
-            time.sleep(0.1)
+        with app.app_context():
+            while self.is_active():
+                self.execute_internal()
+                time.sleep(0.1)
       
     def execute(self):
         if not self.is_active():

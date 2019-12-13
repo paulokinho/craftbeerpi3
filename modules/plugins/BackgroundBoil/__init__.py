@@ -2,7 +2,7 @@
 import logging
 import time
 
-from modules import cbpi, app
+from modules import cbpi
 from modules.base_plugins.brew_steps import BackgroundStep
 from modules.core.props import Property, StepProperty
 
@@ -99,18 +99,17 @@ class BackgroundBoilStep(BackgroundStep):
         This method is executed in an interval
         :return:
         '''
-        with app.app_context():
-            # Check if Target Temp is reached
-            if self.get_kettle_temp(self.kettle) >= float(self.temp):
-                # Check if Timer is Running
-                if self.is_timer_finished() is None:
-                    self.start_timer(int(self.timer) * 60)
-                else:
-                    for i in range(11):
-                        self.check_reminder(i)
-    
-            if self.is_active() and self.is_timer_finished():
-                self.set_active(False)
-                self.finish_background_step();
-                self.notify("Boil Step Completed!", "Starting the next step", timeout=None)
+        # Check if Target Temp is reached
+        if self.get_kettle_temp(self.kettle) >= float(self.temp):
+            # Check if Timer is Running
+            if self.is_timer_finished() is None:
+                self.start_timer(int(self.timer) * 60)
+            else:
+                for i in range(11):
+                    self.check_reminder(i)
+
+        if self.is_active() and self.is_timer_finished():
+            self.set_active(False)
+            self.finish_background_step();
+            self.notify("Boil Step Completed!", "Starting the next step", timeout=None)
     
