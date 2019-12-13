@@ -229,12 +229,16 @@ class BoilStep(StepBase):
 
 @cbpi.step
 class BackgroundStep(StepBase):
-
+    
     def is_background(self):
         return True
     
     def execute_internal(self):
         pass
+
+    def finish_background_step(self):
+        self.is_active = False
+        self.finish_background_step()
     
     def execute_background_task(self):
         while self.is_active == True:

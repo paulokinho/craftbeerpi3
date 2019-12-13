@@ -75,7 +75,6 @@ class BackgroundBoilStep(BackgroundStep):
         
         self.is_active = True
     
-
     def reset(self):
         self.stop_timer()
         self.set_target_temp(self.temp, self.kettle)
@@ -111,6 +110,6 @@ class BackgroundBoilStep(BackgroundStep):
                     self.check_reminder(i)
 
         if self.is_timer_finished() == True:
-            self.is_active = False
+            self.finish_background_step();
             self.notify("Boil Step Completed!", "Starting the next step", timeout=None)
     

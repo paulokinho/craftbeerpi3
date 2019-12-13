@@ -31,6 +31,16 @@ class Step(DBModel):
             return None
 
     @classmethod
+    def get_by_id(cls, step_id):
+        cur = get_db().cursor()
+        cur.execute("SELECT * FROM %s WHERE id = ?" % cls.__table_name__, step_id)
+        r = cur.fetchone()
+        if r is not None:
+            return cls(r)
+        else:
+            return None
+    
+    @classmethod
     def delete_all(cls):
         cur = get_db().cursor()
         cur.execute("DELETE FROM %s" % cls.__table_name__)
@@ -153,7 +163,12 @@ class StepView(BaseView):
         step.end = int(time.time())
         self.stop_step()
         Step.update(**step.__dict__)
+
+    def finish_background_step(self):
+        step = Step.get_by_id(self.id)
         
+        self.finish_step(step)
+    
     @route('/next', methods=['POST'])
     @route('/start', methods=['POST'])
     def start(self):
