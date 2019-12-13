@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 import logging
 import time
-import threading
 
-from modules.core.props import Property, StepProperty
-from modules.core.step import StepBase
 from modules import cbpi
+from modules.base_plugins.brew_steps import BackgroundStep
+from modules.core.props import Property, StepProperty
+
 
 @cbpi.step
-class BackgroundBoilStep(StepBase):
+class BackgroundBoilStep(BackgroundStep):
     '''
     BoilStep with reminders that are set relative to end of boil
     '''
@@ -114,18 +114,3 @@ class BackgroundBoilStep(StepBase):
             self.is_active = False
             self.notify("Boil Step Completed!", "Starting the next step", timeout=None)
     
-    def execute_background_task(self):
-        while self.is_active == True:
-            self.execute_internal()
-
-
-    def execute(self):
-        if self.is_active == False:
-            self.is_active = True
-
-            thread = threading.Thread(target=self.execute_background_task, args=())
-            thread.daemon = True
-            thread.start()
-
-        self.next()
-

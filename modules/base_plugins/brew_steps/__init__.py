@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 import time
-
+import threading
+from abc import abstractmethod, ABCMeta
 
 from modules.core.props import Property, StepProperty
 from modules.core.step import StepBase
 from modules import cbpi
-
-
 
 @cbpi.step
 class MashStep(StepBase):
@@ -227,3 +226,26 @@ class BoilStep(StepBase):
         if self.is_timer_finished() == True:
             self.notify("Boil Step Completed!", "Starting the next step", timeout=None)
             self.next()
+
+@cbpi.step
+class BackgroundStep(StepBase):
+    __metaclass__ = ABCMeta
+    
+    @abstractmethod
+    def execute_internal(self):
+        pass
+    
+    def execute_background_task(self):
+        while self.is_active == True:
+            self.execute_internal()
+            time.sleep(0.1)
+      
+    def execute(self):
+        if not self.is_active:
+            self.is_active = True
+
+            thread = threading.Thread(target=self.execute_background_task, args=())
+            thread.daemon = True
+            thread.start()
+
+        self.next()
