@@ -185,6 +185,7 @@ class StepView(BaseView):
         step = Step.get_by_id(backgroundStep.id)
         self.finish_step(step)
         self.check_brewing_status()
+        cbpi.emit("UPDATE_ALL_STEPS", Step.get_all())
     
     @route('/next', methods=['POST'])
     @route('/start', methods=['POST'])
