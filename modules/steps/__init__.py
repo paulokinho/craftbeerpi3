@@ -195,10 +195,12 @@ class StepView(BaseView):
         if active is not None:
             if self.is_background_step(active):
                 self.finish_step(active)
-            elif step is not None:
-                current = Step.get_by_id(step.id)
-                if self.is_background_step(current):
-                    self.finish_step(current)
+            else:
+                if step is not None:
+                    active = Step.get_by_id(step.id)
+                  
+                if self.is_background_step(active):
+                    self.finish_step(active)
 
         if inactive is not None:
             self.init_step(inactive)
