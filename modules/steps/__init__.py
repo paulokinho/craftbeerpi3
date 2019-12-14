@@ -172,7 +172,12 @@ class StepView(BaseView):
     def finish_step(self, step):
         step.state = 'D'
         step.end = int(time.time())
-        self.stop_step(step)
+        
+        if (step.is_background()):
+            self.stop_step(step)
+        else:
+            self.stop_step()
+          
         Step.update(**step.__dict__)
 
     def finish_background_step(self, backgroundStep):
