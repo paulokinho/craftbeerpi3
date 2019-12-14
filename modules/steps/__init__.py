@@ -289,14 +289,14 @@ def init(cbpi):
         init_after_startup()
     cbpi.add_cache_callback("steps", get_all)
 
-def deque_event(self):
+def deque_event():
     if StepView.event_queue:
         event = StepView.event_queue.popleft()
 
         with app.app_context():
             cbpi.emit(event["key"], event["data"])
         
-def deque_notification(self):
+def deque_notification():
     if StepView.notification_queue:
         notification = StepView.notification_queue.popleft()
 
@@ -310,7 +310,8 @@ def execute_step(api):
     :return: 
     '''
     with cbpi.app.app_context():
-        deque_notification(api)
+        deque_event()
+        deque_notification()
 
         step = cbpi.cache.get("active_step")
         if step is not None:
