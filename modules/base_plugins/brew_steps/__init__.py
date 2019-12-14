@@ -124,6 +124,29 @@ class ChilStep(StepBase):
             self.next()
 
 @cbpi.step
+class WaitForStep(StepBase):
+
+    timer = Property.Number("Timer in Minutes", configurable=True, default_value=0, description="Timer is started immediately")
+
+    @cbpi.action("Stat Timer")
+    def start(self):
+        if self.is_timer_finished() is None:
+            self.start_timer(int(self.timer) * 60)
+
+    def reset(self):
+        self.stop_timer()
+
+    def finish(self):
+        self.notify("Wait finished", "Going to next step")
+
+    def execute(self):
+        if self.is_timer_finished() is None:
+            self.start_timer(int(self.timer) * 60)
+
+        if self.is_timer_finished() == True:
+            self.next()
+        
+@cbpi.step
 class PumpStep(StepBase):
 
     pump = StepProperty.Actor("Pump", description="Pump actor gets toogled")
