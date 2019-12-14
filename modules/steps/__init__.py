@@ -86,6 +86,11 @@ class StepView(BaseView):
     notification_queue = deque()
     
     model = Step
+
+    @staticmethod
+    def notify(headline, message, type="success", timeout=5000):
+        StepView.notification_queue.append({"headline": headline, "message": message, "type": type, "timeout": timeout})
+      
     def _pre_post_callback(self, data):
         order = self.model.get_max_order()
         data["order"] = 1 if order is None else order + 1
@@ -213,7 +218,7 @@ class StepView(BaseView):
         active = Step.get_by_state("A")
         if active is None:
             cbpi.log_action("Brewing Finished")
-            StepView.notification_queue.append({"headline": "Brewing Finished", "message": "You are done!", "timeout": None})
+            StepView.notify("Brewing Finished", "You are done!", timeout=None)
 
 
 def get_manged_fields_as_array(type_cfg):
