@@ -84,6 +84,7 @@ class Step(DBModel):
 
 class StepView(BaseView):
     notification_queue = deque()
+    event_queue = deque()
     
     model = Step
 
@@ -180,12 +181,15 @@ class StepView(BaseView):
             self.stop_step()
           
         Step.update(**step.__dict__)
-
+    
+    def emit(self, key, data):
+        StepView.event_queue.append({"key": key, "data": data})
+      
     def finish_background_step(self, backgroundStep):
         step = Step.get_by_id(backgroundStep.id)
         self.finish_step(step)
         self.check_brewing_status()
-        cbpi.emit("UPDATE_ALL_STEPS", Step.get_all())
+        self.emit("UPDATE_ALL_STEPS", Step.get_all())
     
     @route('/next', methods=['POST'])
     @route('/start', methods=['POST'])
@@ -285,7 +289,13 @@ def init(cbpi):
         init_after_startup()
     cbpi.add_cache_callback("steps", get_all)
 
+def deque_event(self):
+    if StepView.event_queue:
+        event = StepView.event_queue.popleft()
 
+        with app.app_context():
+            cbpi.emit(event["key"], event["data"])
+        
 def deque_notification(self):
     if StepView.notification_queue:
         notification = StepView.notification_queue.popleft()
