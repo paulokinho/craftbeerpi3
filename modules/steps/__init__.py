@@ -120,12 +120,14 @@ class StepView(BaseView):
         cbpi.emit("UPDATE_ALL_STEPS", self.model.get_all())
         return ('', 204)
 
-    def stop_step(self):
+    def stop_step(self, step=None):
         '''
         stop active step
         :return: 
         '''
-        step = cbpi.cache.get("active_step")
+        if step is None:
+            step = cbpi.cache.get("active_step")
+          
         cbpi.cache["active_step"] = None
 
         if step is not None:
@@ -170,7 +172,7 @@ class StepView(BaseView):
     def finish_step(self, step):
         step.state = 'D'
         step.end = int(time.time())
-        self.stop_step()
+        self.stop_step(step)
         Step.update(**step.__dict__)
 
     def finish_background_step(self, backgroundStep):
