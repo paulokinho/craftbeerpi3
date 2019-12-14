@@ -173,8 +173,9 @@ class StepView(BaseView):
         step.state = 'D'
         step.end = int(time.time())
         
-        if self.is_background_step(step):
-            self.stop_step(step)
+        background_step = self.get_background_step(step)
+        if background_step is not None:
+            self.stop_step(background_step)
         else:
             self.stop_step()
           
@@ -217,9 +218,17 @@ class StepView(BaseView):
         instance = type_cfg.get("class")(**cfg)
         return instance
 
+    def get_background_step(self, step):
+        instance = self.get_step_instance(step)
+        
+        if instance.is_background():
+            return instance
+            
+        return None
+
     def is_background_step(self, step):
         return self.get_step_instance(step).is_background()
-            
+    
     def check_brewing_status(self):
         active = Step.get_by_state("A")
         if active is None:
